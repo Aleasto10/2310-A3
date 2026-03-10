@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-tests_a3.py — Unit tests for a3_alrod7901.py
+tests_task1.py — Unit tests for a3_alrod7901.py
 
 Tests for Task 1 functions.
 """

@@ -159,8 +159,34 @@ def compress(state: Sequence[int], block: bytes) -> List[int]:
       new_state[j] = u32(state[j] ^ vj ^ v(j+4))
       (i.e., combine old chaining value with mixed vars)
     """
-    # TODO(Task 2): implement
-    raise NotImplementedError
+    # (Task 2): implement
+    v = list(state)  # v0..v7
+    m = bytes_to_words_le(block)  # m[0..15]
+
+    for i in range(12):
+        t0 = u32(v[0] + m[(i*5 + 0) % 16] + RC[i])
+        v[4] = u32(v[4] ^ rotl32(t0, R[(i + 0) % 8]))
+        v[0] = u32(v[0] + v[4])
+
+        t1 = u32(v[1] + m[(i*5 + 1) % 16] + RC[i])
+        v[5] = u32(v[5] ^ rotl32(t1, R[(i + 1) % 8]))
+        v[1] = u32(v[1] + v[5])
+
+        t2 = u32(v[2] + m[(i*5 + 2) % 16] + RC[i])
+        v[6] = u32(v[6] ^ rotl32(t2, R[(i + 2) % 8]))
+        v[2] = u32(v[2] + v[6])
+
+        t3 = u32(v[3] + m[(i*5 + 3) % 16] + RC[i])
+        v[7] = u32(v[7] ^ rotl32(t3, R[(i + 3) % 8]))
+        v[3] = u32(v[3] + v[7])
+
+        if i % 2 == 0:
+            v[0], v[1], v[2], v[3] = v[1], v[2], v[3], v[0]
+        else:
+            v[4], v[5], v[6], v[7] = v[6], v[7], v[4], v[5]
+    
+    new_state = [u32(state[j] ^ v[j] ^ v[(j+4) % 8]) for j in range(8)]
+    return new_state
 
 # ============================================================
 # Task 3: Build the Hash Function (Merkle–Damgård) (TODO)
