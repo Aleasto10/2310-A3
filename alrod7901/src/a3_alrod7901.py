@@ -53,7 +53,7 @@ RC = [
 R = [5, 11, 17, 23, 7, 13, 19, 29]
 
 # ============================================================
-# Task 1: Bit and Byte Operations (Warm-up) (TODO)
+# Task 1: Bit and Byte Operations (Warm-up)
 # ============================================================
 
 def u32(x: int) -> int:
@@ -118,7 +118,7 @@ def digest_to_state_words_le(digest: bytes) -> List[int]:
     return list(struct.unpack("<8I", digest))
 
 # ============================================================
-# Task 2: Implement the Compression Function (TODO)
+# Task 2: Implement the Compression Function
 # ============================================================
 
 def compress(state: Sequence[int], block: bytes) -> List[int]:
@@ -189,7 +189,7 @@ def compress(state: Sequence[int], block: bytes) -> List[int]:
     return new_state
 
 # ============================================================
-# Task 3: Build the Hash Function (Merkle–Damgård) (TODO)
+# Task 3: Build the Hash Function (Merkle–Damgård)
 # ============================================================
 
 def md_pad(msg: bytes) -> bytes:
@@ -199,8 +199,16 @@ def md_pad(msg: bytes) -> bytes:
     - append 0x00 until (len % 64) == 56
     - append 8-byte little-endian bit-length of original message
     """
-    # TODO(Task 3): implement
-    raise NotImplementedError
+    # (Task 3): implement
+
+    padded = msg + b"\x80"
+    while (len(padded) % BLOCK_SIZE) != 56:
+        padded += b"\x00"
+
+    bit_len = len(msg) * 8
+    padded += struct.pack("<Q", bit_len)
+
+    return padded
 
 def toyhash(msg: bytes) -> bytes:
     """
@@ -212,8 +220,15 @@ def toyhash(msg: bytes) -> bytes:
       - iterate compress over each 64-byte block
       - output words_to_bytes_le(state)
     """
-    # TODO(Task 3): implement
-    raise NotImplementedError
+    # (Task 3): implement
+
+    state = list(IV)
+    padded = md_pad(msg)
+
+    for i in range(0, len(padded), BLOCK_SIZE):
+        block = padded[i:i+BLOCK_SIZE]
+        state = compress(state, block)
+    return words_to_bytes_le(state)
 
 def toyhash_hex(msg: bytes) -> str:
     return toyhash(msg).hex()
